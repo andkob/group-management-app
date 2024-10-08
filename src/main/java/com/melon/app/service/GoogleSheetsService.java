@@ -13,11 +13,9 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.ValueRange;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.stereotype.Service;
+import com.melon.app.service.objects.FormUpdateResponse;
+import com.melon.app.service.providers.CredentialsProvider;
+import com.melon.app.service.providers.DefaultCredentialsProvider;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -27,9 +25,13 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
 /**
  * A service for interacting with Google Sheets API to retrieve data from Google Sheets.
  */
+@Service
 public class GoogleSheetsService {
     private static final String APPLICATION_NAME = "Schedule Coordination App";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -37,6 +39,7 @@ public class GoogleSheetsService {
     private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
     private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
     private static CredentialsProvider credentialsProvider = new DefaultCredentialsProvider();
+    private static final int PORT = 8888;
 
     private final Sheets sheetsService;
     
@@ -71,7 +74,7 @@ public class GoogleSheetsService {
                 .setAccessType("offline")
                 .build();
                 
-        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(PORT).build();
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
@@ -87,6 +90,33 @@ public class GoogleSheetsService {
     public List<List<Object>> getDataFromSheet(String spreadsheetID, String range) throws IOException {
         ValueRange response = sheetsService.spreadsheets().values().get(spreadsheetID, range).execute();
         return response.getValues();
+    }
+
+    /**
+     * Polls the Google Sheet for any new updates since the last known row count.
+     *
+     * This method retrieves the current data from the Google Sheet and compares
+     * the current row count (excluding the header) to the last known count. If there 
+     * are new responses, it returns the new rows of data; otherwise, it returns an 
+     * empty list.
+     *
+     * @param spreadsheetID  the ID of the Google Sheet to poll for updates
+     * @param lastKnownCount the last known number of rows (excluding the header) 
+     *                       processed in the Google Sheet
+     * @return a {@link ResponseEntity} containing a {@link FormUpdateResponse} object 
+     *         that includes the current row count, a flag indicating whether there are 
+     *         new responses, and a list of new rows (if any)
+     * @throws IOException if an I/O error occurs when accessing the Google Sheet
+     */
+    public ResponseEntity<FormUpdateResponse> pollForUpdates(String spreadsheetID, int lastKnownCount) throws IOException {
+        List<List<Object>> currentData = getDataFromSheet(spreadsheetID, "A1:Z");
+        int currentCount = currentData.size() - 1; // minus the header
+
+        boolean hasNewResponses = currentCount > lastKnownCount;
+        List<List<Object>> newResponses = hasNewResponses ? currentData.subList(lastKnownCount + 1, currentData.size())
+                                                            : Collections.emptyList();
+
+        return ResponseEntity.ok(new FormUpdateResponse(currentCount, hasNewResponses, newResponses));
     }
 
     // For testing purposes
@@ -105,7 +135,5 @@ public class GoogleSheetsService {
      * 
      * Token Storage: The app stores tokens in the tokens directory, so the user doesn’t have to authorize the app every time.
      * The token file allows the app to request an updated access token without requiring user re-authorization.
-     * 
-     * 
      */
 }

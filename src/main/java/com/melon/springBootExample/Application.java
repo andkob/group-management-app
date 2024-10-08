@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Bean;
  * @ComponentScan: Tells Spring to look for other components, configurations, and services in
  *  the com/example package, letting it find the controllers.
  */
-@SpringBootApplication
+// @SpringBootApplication
 public class Application {
 
     /**

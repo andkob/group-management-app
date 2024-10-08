@@ -3,36 +3,28 @@ package com.melon.group_scheduler;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
-import com.google.api.services.sheets.v4.Sheets;
-import com.google.api.services.sheets.v4.model.Spreadsheet;
-import com.google.api.services.sheets.v4.model.ValueRange;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
-import com.melon.app.service.CredentialsProvider;
-import com.melon.app.service.DefaultCredentialsProvider;
 import com.melon.app.service.GoogleSheetsService;
+import com.melon.app.service.objects.FormUpdateResponse;
+import com.melon.app.service.providers.CredentialsProvider;
+import com.melon.app.service.providers.DefaultCredentialsProvider;
 
 @ExtendWith(MockitoExtension.class)
 public class GoogleSheetsServiceTest {
@@ -92,6 +84,7 @@ public class GoogleSheetsServiceTest {
             GoogleNetHttpTransport.newTrustedTransport()
         );
 
+        // prints to debug console
         System.out.println("access token = " + credential.getAccessToken());
         
         // Assert that the credential is not null
@@ -119,29 +112,6 @@ public class GoogleSheetsServiceTest {
 
     @Test
     void testGetDataFromSheet() throws IOException {
-        // // Mock the Sheets service
-        // Sheets mockSheetsService = mock(Sheets.class);
-        // Sheets.Spreadsheets mockSpreadsheets = mock(Sheets.Spreadsheets.class);
-        // Sheets.Spreadsheets.Values mockValues = mock(Sheets.Spreadsheets.Values.class);
-        // Sheets.Spreadsheets.Values.Get mockGet = mock(Sheets.Spreadsheets.Values.Get.class);
-        
-        // when(mockSheetsService.spreadsheets()).thenReturn(mockSpreadsheets);
-        // when(mockSpreadsheets.values()).thenReturn(mockValues);
-        // when(mockValues.get(anyString(), anyString())).thenReturn(mockGet);
-        
-        // ValueRange mockValueRange = new ValueRange();
-        // List<List<Object>> mockData = Arrays.asList(
-        //     Arrays.asList("Name", "Email"),
-        //     Arrays.asList("John Doe", "john@example.com")
-        // );
-        // mockValueRange.setValues(mockData);
-        
-        // when(mockGet.execute()).thenReturn(mockValueRange);
-        
-        // // Use reflection to set the mock Sheets service
-        // ReflectionTestUtils.setField(googleSheetsService, "sheetsService", mockSheetsService);
-
-        // Similar to before, but now we need to ensure we can create the service first
         CredentialsProvider mockProvider = new CredentialsProvider() {
             @Override
             public InputStream getCredentialsStream() {
@@ -149,8 +119,6 @@ public class GoogleSheetsServiceTest {
             }
         };
         GoogleSheetsService.setCredentialsProvider(mockProvider);
-
-        //================
 
         // Test the method
         List<List<Object>> result = googleSheetsService.getDataFromSheet(SPREADSHEET_ID, "A1:B2");
@@ -160,5 +128,23 @@ public class GoogleSheetsServiceTest {
         // assertEquals(2, result.size());
         // assertEquals("John Doe", result.get(1).get(0));
         // assertEquals("john@example.com", result.get(1).get(1));
+    }
+
+    @Test
+    void testPollForUpdatesTrue() throws IOException {
+        int lastKnownCount = 0;
+        ResponseEntity<FormUpdateResponse> response = googleSheetsService.pollForUpdates(SPREADSHEET_ID, lastKnownCount);
+        boolean hasNewResponses = response.getBody().isHasNewResponses();
+        assertNotNull(response);
+        assertTrue(hasNewResponses);
+    }
+
+    @Test
+    void testPollForUpdatesFalse() throws IOException {
+        int lastKnownCount = 3; // the amount of current responses
+        ResponseEntity<FormUpdateResponse> response = googleSheetsService.pollForUpdates(SPREADSHEET_ID, lastKnownCount);
+        boolean hasNewResponses = response.getBody().isHasNewResponses();
+        assertNotNull(response);
+        assertFalse(hasNewResponses);
     }
 }
