@@ -1,7 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { LayoutGrid, Calendar, Users, Clock, Search } from 'lucide-react';
+import CreateSchedule from './CreateSchedule';
 
-export default function Dashboard() {
+export default function Dashboard({ handleFetchResponses }) {
+  const [showCreateScheduleModal, setShowCreateScheduleModal] = useState(false);
+
+  const openModal = () => setShowCreateScheduleModal(true);
+  const closeModal = () => setShowCreateScheduleModal(false)
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Navigation Bar */}
@@ -21,9 +27,22 @@ export default function Dashboard() {
                   className="pl-8 w-64 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
-              <button className="ml-4 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+              <button
+                className="ml-4 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                onClick={handleFetchResponses}
+                >
+                Fetch Form Responses
+              </button>
+              <button 
+                className="ml-4 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                onClick={openModal}
+                >
                 New Schedule
               </button>
+              {/* Show the modal when "New Schedule" button is clicked */}
+              {showCreateScheduleModal && (
+                <CreateSchedule showModal={showCreateScheduleModal} closeModal={closeModal} />
+              )}
             </div>
           </div>
         </div>
