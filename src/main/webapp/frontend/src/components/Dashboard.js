@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LayoutGrid, Calendar, Users, Clock, Search } from 'lucide-react';
 import CreateSchedule from './CreateSchedule';
+import DropdownMenu from './DropdownMenu';
 
 export default function Dashboard({ handleFetchResponses }) {
   const [showCreateScheduleModal, setShowCreateScheduleModal] = useState(false);
@@ -19,6 +20,9 @@ export default function Dashboard({ handleFetchResponses }) {
               <span className="ml-2 text-xl font-semibold">Schedule Dashboard</span>
             </div>
             <div className="flex items-center">
+              <div>
+                <DropdownMenu />
+              </div>
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
                 <input
