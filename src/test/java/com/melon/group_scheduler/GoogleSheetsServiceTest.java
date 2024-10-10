@@ -110,6 +110,18 @@ public class GoogleSheetsServiceTest {
         });
     }
 
+    /**
+     * NOTE: This test will pass as long as a verified test user is accessing a
+     * form they have read permissions for.
+     * 
+     * If the user does not have permissions, getDataFromSheet throws
+     * "GoogleJsonResponseException: 403 Forbidden"
+     * This user's credentials are then stored, so this test will fail until
+     * they are deleted.
+     * 
+     * This can't be handled yet cuz exact structure hasnt been determined
+     * for the project.
+     */
     @Test
     void testGetDataFromSheet() throws IOException {
         CredentialsProvider mockProvider = new CredentialsProvider() {
