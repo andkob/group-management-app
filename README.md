@@ -1,7 +1,7 @@
-# Schedule Coordination App
+# Group Management Application
 (yea still working on the name)
 
-This project is a web application designed to help coordinate and manage schedules for a group of users. The app integrates with **Google Sheets** to pull schedule data received from a **Google Form**, allowing for efficient event planning by visualizing overlapping availabilities.
+This web application serves as a centralized hub for coordinating and managing schedules within groups such as fraternities and other organizations. Initially designed to integrate with Google Sheets to pull schedule data entered by members via a Google Form, the app will evolve to facilitate efficient event planning by visualizing overlapping availabilities. Future features will include creating and managing events, tracking upcoming activities, and enhancing communication among members. By building on the foundation of individual schedules, this application aims to streamline coordination and foster collaboration within the group.
 
 ## Features
 - OAuth 2.0 Authentication with Google for secure access to Google Sheets.
@@ -10,7 +10,8 @@ This project is a web application designed to help coordinate and manage schedul
 - Frontend built with **React**.
 - Maven-based project for build and dependency management.
 
-## Getting Started
+## 🚧 Getting Started
+***Note:** This project is currently in development. Please follow the instructions below only if you are interested in building on it or trying out the existing features.*
 
 ### Prerequisites
 
