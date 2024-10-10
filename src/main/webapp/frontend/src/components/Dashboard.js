@@ -20,11 +20,11 @@ export default function Dashboard({ handleFetchResponses }) {
               <span className="ml-2 text-xl font-semibold">Schedule Dashboard</span>
             </div>
             <div className="flex items-center">
-              <div>
+              <div className="mr-4">
                 <DropdownMenu />
               </div>
               <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-2 top-1 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Search schedules..."
