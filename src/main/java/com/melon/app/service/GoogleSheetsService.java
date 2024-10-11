@@ -13,6 +13,8 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import com.melon.app.entity.Schedule;
+import com.melon.app.entity.ScheduleEntry;
 import com.melon.app.service.objects.FormUpdateResponse;
 import com.melon.app.service.providers.CredentialsProvider;
 import com.melon.app.service.providers.DefaultCredentialsProvider;
@@ -24,6 +26,7 @@ import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -90,6 +93,25 @@ public class GoogleSheetsService {
     public List<List<Object>> getDataFromSheet(String spreadsheetID, String range) throws IOException {
         ValueRange response = sheetsService.spreadsheets().values().get(spreadsheetID, range).execute();
         return response.getValues();
+    }
+
+    public Schedule convertToSchedule(List<List<Object>> scheduleData, String scheduleName) {
+        Schedule schedule = new Schedule();
+        schedule.setName(scheduleName);
+        List<ScheduleEntry> entries = new ArrayList<>();
+
+        for (List<Object> row : scheduleData) {
+            // Assuming the first column is day and the second is time
+            ScheduleEntry entry = new ScheduleEntry();
+            entry.setDay(row.get(0).toString());
+            entry.setTime(row.get(1).toString());
+            entry.setSchedule(schedule); // Set reference to the parent schedule
+
+            entries.add(entry);
+        }
+
+        schedule.setEntries(entries);
+        return schedule;
     }
 
     /**

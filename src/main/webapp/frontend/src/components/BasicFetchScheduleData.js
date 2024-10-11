@@ -94,7 +94,7 @@ function BasicFetchScheduleData({ handleFetchResponses }) {
           </div>
         )}
         <button 
-            className="ml-4 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="mt-4 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
             onClick={handleFetchResponses}
           >
             Back To Dashboard
