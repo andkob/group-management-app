@@ -29,7 +29,7 @@ public class Schedule {
     private Organization organization;
 
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ScheduleEntry> entries; // Schedule as a nested list (TODO - yea idk how long this will last)
+    private List<ScheduleEntry> entries;
 
     public void setName(String scheduleName) {
         this.scheduleName = scheduleName;
@@ -37,5 +37,12 @@ public class Schedule {
 
     public void setEntries(List<ScheduleEntry> entries) {
         this.entries = entries;
+        for (ScheduleEntry entry : entries) {
+            entry.setSchedule(this);
+        }
+    }
+
+    public List<ScheduleEntry> getEntries() {
+        return entries;
     }
 }

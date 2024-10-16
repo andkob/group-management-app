@@ -32,6 +32,21 @@ function BasicFetchScheduleData({ handleFetchResponses }) {
     }
   };
 
+  const storeSchedule = async () => {
+    try {
+      const response = await fetch(`/api/store-schedule?sheetID=${spreadsheetId}`);
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      setStatus('Data stored successfully');
+    } catch (error) {
+      console.error('Error storing schedule data:', error);
+      setStatus(`Error: ${error.message}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -98,6 +113,12 @@ function BasicFetchScheduleData({ handleFetchResponses }) {
             onClick={handleFetchResponses}
           >
             Back To Dashboard
+        </button>
+        <button
+          className="mt-4 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+          onClick={storeSchedule}
+        >
+          Store schedule data
         </button>
       </div>
     </div>

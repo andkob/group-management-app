@@ -15,6 +15,7 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.melon.app.entity.Schedule;
 import com.melon.app.entity.ScheduleEntry;
+import com.melon.app.repository.ScheduleRepository;
 import com.melon.app.service.objects.FormUpdateResponse;
 import com.melon.app.service.providers.CredentialsProvider;
 import com.melon.app.service.providers.DefaultCredentialsProvider;
@@ -28,8 +29,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * A service for interacting with Google Sheets API to retrieve data from Google Sheets.
@@ -45,6 +48,17 @@ public class GoogleSheetsService {
     private static final int PORT = 8888;
 
     private final Sheets sheetsService;
+
+    @Autowired
+    private ScheduleRepository scheduleRepository;
+
+    private static final int TIMESTAMP  = 0;
+    private static final int EMAIL      = 1;
+    private static final int MONDAY     = 2;
+    private static final int TUESDAY    = 3;
+    private static final int WEDNESDAY  = 4;
+    private static final int THURSDAY   = 5;
+    private static final int FRIDAY     = 6;
     
     /**
      * Constructs a new {@code GoogleSheetsService} object, initializing the Google Sheets API client.
@@ -95,22 +109,51 @@ public class GoogleSheetsService {
         return response.getValues();
     }
 
+    @Transactional
     public Schedule convertToSchedule(List<List<Object>> scheduleData, String scheduleName) {
         Schedule schedule = new Schedule();
         schedule.setName(scheduleName);
         List<ScheduleEntry> entries = new ArrayList<>();
 
         for (List<Object> row : scheduleData) {
-            // Assuming the first column is day and the second is time
             ScheduleEntry entry = new ScheduleEntry();
-            entry.setDay(row.get(0).toString());
-            entry.setTime(row.get(1).toString());
+            int index = 0;
+            for (Object column : row) {
+                switch (index) {
+                    case TIMESTAMP:
+                        entry.setTimestamp(column.toString());
+                        break;
+                    case EMAIL:
+                        entry.setEmail(column.toString());
+                        break;
+                    case MONDAY:
+                        entry.setMondayTimes(column.toString());
+                        break;
+                    case TUESDAY:
+                        entry.setTuesdayTimes(column.toString());
+                        break;
+                    case WEDNESDAY:
+                        entry.setWednesdayTimes(column.toString());
+                        System.out.println("wednesday times set");
+                        System.out.println(column.toString());
+                        break;
+                    case THURSDAY:
+                        entry.setThursdayTimes(column.toString());
+                        break;
+                    case FRIDAY:
+                        entry.setFridayTimes(column.toString());
+                        break;
+                }
+                index++;
+            }
             entry.setSchedule(schedule); // Set reference to the parent schedule
-
             entries.add(entry);
         }
 
         schedule.setEntries(entries);
+
+        scheduleRepository.save(schedule);
+
         return schedule;
     }
 
@@ -136,7 +179,7 @@ public class GoogleSheetsService {
 
         boolean hasNewResponses = currentCount > lastKnownCount;
         List<List<Object>> newResponses = hasNewResponses ? currentData.subList(lastKnownCount + 1, currentData.size())
-                                                            : Collections.emptyList();
+                                                          : Collections.emptyList();
 
         return ResponseEntity.ok(new FormUpdateResponse(currentCount, hasNewResponses, newResponses));
     }

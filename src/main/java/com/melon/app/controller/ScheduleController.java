@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.melon.app.entity.Schedule;
 import com.melon.app.service.GoogleSheetsService;
 import com.melon.app.service.objects.FormUpdateResponse;
 
@@ -28,6 +29,14 @@ public class ScheduleController {
     public List<List<Object>> getScheduleData(@RequestParam(value = "sheetID") String spreadsheetID) throws IOException {
         System.out.println("getSchedule endpoint reached");
         return googleSheetsService.getDataFromSheet(spreadsheetID, "A1:Z");
+    }
+
+    @GetMapping("/store-schedule")
+    public Schedule storeScheduleData(@RequestParam(value = "sheetID") String spreadsheetID) throws IOException {
+        System.out.println("Store schedule endpoint reached");
+        Schedule s = googleSheetsService.convertToSchedule(googleSheetsService.getDataFromSheet(spreadsheetID, "A1:Z"), "testSchedule");
+        System.out.println("Success???");
+        return s;
     }
 
     @GetMapping("/poll-updates")
