@@ -109,6 +109,14 @@ public class GoogleSheetsService {
         return response.getValues();
     }
 
+    /**
+     * Converts a list of schedule data into a {@link Schedule} object.
+     *
+     * @param scheduleData A list of lists containing schedule data.
+     * @param scheduleName The name of the schedule.
+     * @return The created {@link Schedule} object.
+     * @throws SomeSpecificException if there's an issue with the data or saving (if applicable).
+     */
     @Transactional
     public Schedule convertToSchedule(List<List<Object>> scheduleData, String scheduleName) {
         Schedule schedule = new Schedule();
@@ -134,8 +142,6 @@ public class GoogleSheetsService {
                         break;
                     case WEDNESDAY:
                         entry.setWednesdayTimes(column.toString());
-                        System.out.println("wednesday times set");
-                        System.out.println(column.toString());
                         break;
                     case THURSDAY:
                         entry.setThursdayTimes(column.toString());
@@ -149,12 +155,18 @@ public class GoogleSheetsService {
             entry.setSchedule(schedule); // Set reference to the parent schedule
             entries.add(entry);
         }
-
         schedule.setEntries(entries);
-
         scheduleRepository.save(schedule);
 
         return schedule;
+    }
+
+    /**
+     * Returns the total number of {@link Schedule} entries.
+     * @return The count of schedules as a {@code long}.
+     */
+    public long countSchedules() {
+        return scheduleRepository.count();
     }
 
     /**

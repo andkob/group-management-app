@@ -34,9 +34,20 @@ public class ScheduleController {
     @GetMapping("/store-schedule")
     public Schedule storeScheduleData(@RequestParam(value = "sheetID") String spreadsheetID) throws IOException {
         System.out.println("Store schedule endpoint reached");
-        Schedule s = googleSheetsService.convertToSchedule(googleSheetsService.getDataFromSheet(spreadsheetID, "A1:Z"), "testSchedule");
-        System.out.println("Success???");
-        return s;
+        Schedule schedule = new Schedule(); // initialize with empty schedule to avoid possible related errors
+        try {
+            schedule = googleSheetsService.convertToSchedule(googleSheetsService.getDataFromSheet(spreadsheetID, "A1:Z"), "testSchedule");
+            System.out.println("Success");
+        } catch (IOException e) {
+            System.out.println("FAIL");
+            throw new IOException("Error fetching/storing schedule data");
+        }
+        return schedule;
+    }
+
+    @GetMapping("/schedule/count")
+    public long getScheduleCount() {
+        return googleSheetsService.countSchedules();
     }
 
     @GetMapping("/poll-updates")

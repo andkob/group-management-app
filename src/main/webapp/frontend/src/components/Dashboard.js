@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { LayoutGrid, Calendar, Users, Clock, Search } from 'lucide-react';
 import CreateSchedule from './CreateSchedule';
 import DropdownMenu from './DropdownMenu';
+import TotalSchedules from './TotalSchedules';
 
 export default function Dashboard({ handleFetchResponses }) {
   const [showCreateScheduleModal, setShowCreateScheduleModal] = useState(false);
@@ -61,7 +62,7 @@ export default function Dashboard({ handleFetchResponses }) {
               <h3 className="text-sm font-medium text-gray-500">Total Schedules</h3>
               <Calendar className="h-4 w-4 text-gray-400" />
             </div>
-            <div className="text-2xl font-bold">12</div>
+            <TotalSchedules />
             <p className="text-xs text-gray-500">+2 from last week</p>
           </div>
           
